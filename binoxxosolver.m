@@ -1,19 +1,21 @@
-function y = binoxxosolver()
+function binoxxosolver()
 %% Binoxxo-Solver
-% Regeln:
-% 1. Es dürfen nie mehr als zwei aufeinanderfolgende X oder O in einer
-% Zelle oder Spalte vorkommen
-% 2. In jeder Zeile und jeder Spalte stehen gleich viele X und O
-% 3. Alle Zeilen und alle Spalten sind einzigartig
+% Rules:
+% 1. There must never be more than two consecutive X or O in a rows or column.
+% 2. Each rows and each column contains the same number of X and O.
+% 3. All rowss and columns are unique.
+% 
+% The number of rowss and columns must be even.
 
-% Input (0=Kreis, 1=X, 2=leer)
+% Input (0=circle, 1=X, 2=empty)
 % I = [2,2,2,2,2,2;...
 %     1,2,2,2,2,1;...
 %     2,2,2,1,2,2;...
 %     0,2,2,1,2,2;...
 %     2,0,2,2,2,2;...
-%     2,0,2,2,1,2]
+%     2,0,2,2,1,2];
 
+% Solution
 % I = [0,1,1,0,0,1;...
 %     1,0,1,0,0,1;...
 %     0,1,0,1,1,0;...
@@ -21,39 +23,71 @@ function y = binoxxosolver()
 %     1,0,1,0,1,0;...
 %     1,0,0,1,1,0];
 
-I = [0,0,1,0,1,1;...
-    0,1,0,0,1,1;...
-    0,1,0,1,0,1;...
-    0,0,1,0,1,1;...
-    1,0,0,1,1,0;...
-    1,0,1,1,0,0];
+% Testmatrix
+I = [2,2,2,2,2,2;...
+    1,2,2,2,2,1;...
+    2,2,2,1,2,2;...
+    0,2,2,1,2,2;...
+    2,0,2,2,2,2;...
+    2,0,2,2,1,2];
 
-ruleOne(I)
+S = size(I);
+rows = S(1,1);
+columns = S(1,2);
+I_res = zeros(rows,columns);
 
-ruleTwo(I)
+flag = 0;
+counter = 0;
+while counter == 3
+    
+    for n = 1:rows
+        for m = 1:columns
+            if(I(n,m)==2)
+                r = randi(2)-1;
+                I_res(n,m)=r;
+            end
+        end
+    end
+    counter = counter + 1;
+%     if((ruleOne(I_res)==0)&&(ruleOne(I_res')==0)&&(ruleTwo(I_res)==0)&&...
+%         (ruleTwo(I_res')==0)&&(ruleTree(I_res)==0)&&(ruleTree(I_res')==0))
+%         flag = 1;
+%     end
 
-ruleTree(I)
+end
+I_res
+
+% ruleOne(I)
+% ruleOne(I')
+% 
+% ruleTwo(I)
+% ruleTwo(I')
+% 
+% ruleTree(I)
+% ruleTree(I')
+
+
 
 end
 
 function x = ruleOne(I)
-
+% 1. There must never be more than two consecutive X or O in a cell or column.
 S = size(I);
-zeilen = S(1,1);
-spalten = S(1,2);
+rows = S(1,1);
+columns = S(1,2);
 
 flag = 0;
-for z = 1:zeilen
+for n = 1:rows
 counter_0 = 0;
 counter_x = 0;
-    for s = 1:spalten
-        if(I(z,s)==0 && counter_0 <= 2)
+    for m = 1:columns
+        if(I(n,m)==0 && counter_0 <= 2)
             counter_0 = counter_0+1;
             counter_x = 0;
-        elseif(I(z,s)==1 && counter_x <= 2)
+        elseif(I(n,m)==1 && counter_x <= 2)
             counter_x = counter_x+1;
             counter_0 = 0;
-        elseif(I(z,s)==2)
+        elseif(I(n,m)==2)
             counter_x = 0;
             counter_0 = 0;
         end
@@ -63,38 +97,37 @@ counter_x = 0;
     end
 end
 x = flag;
+% Output: 0 = ok, 1 = error
 end
 
 function x = ruleTwo(I)
-
+% 2. Each rows and each column contains the same number of X and O.
 S = size(I);
-zeilen = S(1,1);
-spalten = S(1,2);
-
+rows = S(1,1);
+columns = S(1,2);
 flag = 0;
-
-for n = 1:zeilen
-    if(((sum(I(n,:)==0)) ~= (spalten/2)) || ((sum(I(n,:)==1)) ~= (spalten/2)))
+for n = 1:rows
+    if(((sum(I(n,:)==0)) > (columns/2)) || ((sum(I(n,:)==1)) > (columns/2)))
         flag = 1;
     end
 end
 x = flag;
+% Output: 0 = ok, 1 = error
 end
 
 function x = ruleTree(I)
-
+% 3. All rowss and columns are unique.
 S = size(I);
-zeilen = S(1,1);
-
+rows = S(1,1);
 flag = 0;
-
-for n = 1:zeilen
+for n = 1:rows
     aktzeile = I(n,:);
-    for m = n+1:zeilen
+    for m = n+1:rows
         if isequal(aktzeile,I(m,:))
             flag = 1;
         end
     end
 end
 x = flag;
+% Output: 0 = ok, 1 = error
 end
